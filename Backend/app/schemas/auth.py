@@ -12,7 +12,7 @@ class GoogleLoginRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "access_token": "ya29.a0AfH6SMC..."
+                "access_token": "google_oauth_token_here"
             }
         }
 
@@ -26,8 +26,8 @@ class LoginResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
+                "access_token": "jwt.token.here",
+                "token_type": "bearer", 
                 "expires_in": 3600,
                 "user": {
                     "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -90,7 +90,7 @@ class TokenValidationRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                "token": "jwt.token.here"
             }
         }
 

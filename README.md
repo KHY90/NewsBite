@@ -22,10 +22,7 @@ NewsBite/
 ├── Backend/           # FastAPI 서버
 ├── docker-compose.yml # 개발 환경 설정
 ├── .gitignore
-├── README.md
-└── .claude/          # Claude Code 설정
-    ├── project.md
-    └── CLAUDE.md
+└── README.md
 ```
 
 ## 🛠️ 기술 스택
@@ -69,13 +66,18 @@ cd NewsBite
 # Backend 환경 설정
 cd Backend
 cp .env.example .env
-# .env 파일 편집
+# .env 파일 편집 - API 키와 데이터베이스 설정 추가
 
 # Frontend 환경 설정  
 cd ../Frontend
 cp .env.example .env.local
-# .env.local 파일 편집
+# .env.local 파일 편집 - Supabase 설정 추가
 ```
+
+⚠️ **보안 주의사항**: 
+- `.env` 파일에는 실제 API 키를 입력하세요
+- 이 파일들은 .gitignore에 포함되어 커밋되지 않습니다
+- 프로덕션 환경에서는 환경변수나 보안 관리 서비스를 사용하세요
 
 ### 3. Docker로 실행
 ```bash
@@ -134,8 +136,8 @@ npm run dev
 
 ## 📞 연락처
 
-- **개발자**: Your Name
-- **이메일**: your.email@example.com
+- **개발자**: 김화연
+- **이메일**: power4206@gmail.com
 - **프로젝트 링크**: [https://github.com/your-username/NewsBite](https://github.com/your-username/NewsBite)
 
 ## 🙏 감사의 말

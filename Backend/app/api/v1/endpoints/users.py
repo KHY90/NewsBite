@@ -104,17 +104,147 @@ async def update_user_profile(
 
 @router.get("/preferences")
 async def get_user_preferences(
-    current_user: dict = Depends(get_current_user)
-) -> Any:
-    """사용자 관심사 조회 - Phase 4에서 구현 예정"""
-    # TODO: Phase 4에서 카테고리/기업 구독 정보 조회 구현
-    raise HTTPException(status_code=501, detail="Phase 4에서 구현 예정")
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+) -> dict[str, Any]:
+    """
+    사용자 관심사 조회
+    
+    - 구독중인 카테고리 목록
+    - 관심 기업 목록
+    - 알림 설정
+    """
+    try:
+        from app.models.subscription import UserCategorySubscription, UserCompanySubscription
+        from app.models.category import Category
+        from app.models.company import Company
+        from sqlalchemy import select
+        
+        # 카테고리 구독 정보 조회
+        stmt = select(UserCategorySubscription, Category).join(
+            Category, UserCategorySubscription.category_id == Category.id
+        ).where(
+            UserCategorySubscription.user_id == current_user["user_id"],
+            UserCategorySubscription.is_active == True
+        )
+        
+        result = await db.execute(stmt)
+        category_subscriptions = result.fetchall()
+        
+        categories = [
+            {
+                "id": category.id,
+                "name": category.name,
+                "description": category.description,
+                "color": category.color
+            }
+            for subscription, category in category_subscriptions
+        ]
+        
+        # 기업 구독 정보 조회
+        stmt = select(UserCompanySubscription, Company).join(
+            Company, UserCompanySubscription.company_id == Company.id
+        ).where(
+            UserCompanySubscription.user_id == current_user["user_id"],
+            UserCompanySubscription.is_active == True
+        )
+        
+        result = await db.execute(stmt)
+        company_subscriptions = result.fetchall()
+        
+        companies = [
+            {
+                "id": company.id,
+                "name": company.name,
+                "description": company.description,
+                "logo_url": company.logo_url,
+                "sentiment_alerts": subscription.sentiment_alerts_enabled
+            }
+            for subscription, company in company_subscriptions
+        ]
+        
+        return {
+            "categories": categories,
+            "companies": companies,
+            "total_categories": len(categories),
+            "total_companies": len(companies)
+        }
+        
+    except Exception as e:
+        logger.error(f"사용자 관심사 조회 중 오류 발생: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="관심사 조회 중 오류가 발생했습니다"
+        )
 
 
 @router.put("/preferences")
 async def update_user_preferences(
-    current_user: dict = Depends(get_current_user)
-) -> Any:
-    """사용자 관심사 업데이트 - Phase 4에서 구현 예정"""
-    # TODO: Phase 4에서 카테고리/기업 구독 정보 업데이트 구현
-    raise HTTPException(status_code=501, detail="Phase 4에서 구현 예정")
+    preferences_data: dict,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+) -> dict[str, str]:
+    """
+    사용자 관심사 업데이트
+    
+    Request body:
+    {
+        "category_ids": [1, 2, 3],  // 구독할 카테고리 ID 목록
+        "company_ids": [1, 2],      // 관심 기업 ID 목록
+    }
+    """
+    try:
+        from app.models.subscription import UserCategorySubscription, UserCompanySubscription
+        from sqlalchemy import select, delete
+        
+        user_id = current_user["user_id"]
+        category_ids = preferences_data.get("category_ids", [])
+        company_ids = preferences_data.get("company_ids", [])
+        
+        # 기존 구독 정보 삭제
+        await db.execute(
+            delete(UserCategorySubscription).where(
+                UserCategorySubscription.user_id == user_id
+            )
+        )
+        
+        await db.execute(
+            delete(UserCompanySubscription).where(
+                UserCompanySubscription.user_id == user_id
+            )
+        )
+        
+        # 새 카테고리 구독 추가
+        for category_id in category_ids:
+            subscription = UserCategorySubscription(
+                user_id=user_id,
+                category_id=category_id,
+                is_active=True
+            )
+            db.add(subscription)
+        
+        # 새 기업 구독 추가
+        for company_id in company_ids:
+            subscription = UserCompanySubscription(
+                user_id=user_id,
+                company_id=company_id,
+                is_active=True,
+                sentiment_alerts_enabled=True
+            )
+            db.add(subscription)
+        
+        await db.commit()
+        
+        return {
+            "message": "관심사가 성공적으로 업데이트되었습니다",
+            "categories_updated": len(category_ids),
+            "companies_updated": len(company_ids)
+        }
+        
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"사용자 관심사 업데이트 중 오류 발생: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="관심사 업데이트 중 오류가 발생했습니다"
+        )
