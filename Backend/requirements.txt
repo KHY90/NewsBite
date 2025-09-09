@@ -49,3 +49,5 @@ emails==0.6
 
 # Task Scheduling
 apscheduler==3.10.4
+
+PyJWT
