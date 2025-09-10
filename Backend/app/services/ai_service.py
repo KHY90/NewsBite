@@ -1,3 +1,15 @@
+# 이 파일은 NewsBite의 핵심 AI 기능들을 서비스 형태로 제공합니다.
+# 외부 AI API(Gemini, OpenAI)를 사용하여 뉴스 기사의 내용을 처리하고,
+# 요약, 감정 분석, 찬반 논점 정리 등 유용한 정보를 생성하는 역할을 합니다.
+#
+# - `AIService` 클래스: AI 처리 로직을 캡슐화합니다.
+#   - `process_news_article`: 뉴스 기사 하나에 대해 모든 AI 분석(요약, 감정, 찬반)을 병렬로 수행합니다.
+#   - `summarize_news`: 기사 내용을 3~4문장으로 요약합니다.
+#   - `analyze_sentiment`: 기사의 긍정/부정/중립 톤을 분석하고 점수를 매깁니다.
+#   - `analyze_pros_and_cons`: 논쟁적인 주제에 대해 찬성/반대 논점을 정리합니다.
+# - Gemini를 우선적으로 사용하고, 실패 시 OpenAI로 대체(fallback)하는 로직이 구현되어 있습니다.
+# - `batch_process_news`: 여러 뉴스 기사를 효율적으로 동시에 처리하는 유틸리티 함수입니다.
+
 """
 AI 처리 서비스
 OpenAI/Gemini API를 이용한 뉴스 요약, 감정분석, 찬반정리

@@ -1,5 +1,15 @@
+# 이 파일은 인증, 특히 JWT(JSON Web Token) 처리와 관련된 유틸리티 함수들을 제공합니다.
+# 다른 서비스나 의존성 파일에서 공통으로 사용되는 인증 관련 보조 기능들을 모아놓았습니다.
+#
+# - `AuthError`: 인증 과정에서 발생하는 특정 오류들을 처리하기 위한 커스텀 예외 클래스입니다.
+# - `verify_supabase_token`: Supabase에서 발급한 JWT 토큰이 유효한지 검증합니다.
+#                            Supabase 관리자 클라이언트를 사용하여 토큰의 서명, 만료 시간 등을
+#                            확인하고, 성공 시 토큰에 담긴 사용자 정보를 반환합니다.
+# - `extract_token_from_header`: HTTP 요청의 'Authorization' 헤더에서 'Bearer' 스킴을 사용하는
+#                                토큰을 안전하게 추출합니다.
+
 """
-Authentication utilities for JWT token verification
+JWT 토큰 검증을 위한 인증 유틸리티
 """
 import jwt
 from datetime import datetime, timezone

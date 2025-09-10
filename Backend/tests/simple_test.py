@@ -33,7 +33,7 @@ async def simple_news_test():
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             })
             
-            # 네이버 뉴스 정치 섹션 접속 (더 명확한 구조)
+            # 네이버 뉴스 정치 섹션 접속
             print("네이버 뉴스 접속 중...")
             await page.goto("https://news.naver.com/section/100", wait_until="networkidle", timeout=30000)
             

@@ -1,5 +1,10 @@
+# 이 파일은 Pydantic의 BaseSettings를 사용하여 애플리케이션 전체의 설정을 관리합니다.
+# .env 파일에서 환경 변수를 로드하며, 데이터베이스, CORS, Supabase, AI API 키 등
+# 다양한 설정 값을 중앙에서 관리할 수 있도록 구조화되어 있습니다.
+# 각 설정은 타입 어노테이션을 통해 유효성 검사를 받습니다.
+
 """
-Application configuration using Pydantic Settings
+Pydantic 설정을 사용한 애플리케이션 구성
 """
 from typing import List, Optional, Union
 from pydantic import field_validator, AnyHttpUrl
@@ -8,16 +13,16 @@ import secrets
 
 
 class Settings(BaseSettings):
-    """Application settings"""
+    """애플리케이션 설정"""
     
-    # Application
+    # 애플리케이션
     PROJECT_NAME: str = "NewsBite API"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30 * 24 * 8  # 8 days
     
-    # Environment
+    # 환경
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
@@ -36,7 +41,7 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
     
-    # Database
+    # 데이터베이스
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_USER: str = "newsbite"
     POSTGRES_PASSWORD: str = "newsbite_password"
@@ -50,7 +55,7 @@ class Settings(BaseSettings):
         if isinstance(v, str) and v:
             return v
         
-        # Default connection string for development
+        # 개발용 기본 연결 문자열
         return "postgresql://newsbite:newsbite_password@localhost:5432/newsbite_db"
     
     # Redis
@@ -61,22 +66,22 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = ""
     SUPABASE_SERVICE_KEY: str = ""
     
-    # AI APIs
+    # AI API
     OPENAI_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
     
-    # Email (SMTP)
+    # 이메일 (SMTP)
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
     SMTP_USERNAME: str = ""
     SMTP_PASSWORD: str = ""
     
-    # News Settings
+    # 뉴스 설정
     NEWS_CRAWL_START_TIME: str = "18:00"
     NEWS_CRAWL_END_TIME: str = "18:30"
     EMAIL_SEND_TIME: str = "19:00"
     
-    # AWS (Production)
+    # AWS (프로덕션)
     AWS_ACCESS_KEY_ID: str = ""
     AWS_SECRET_ACCESS_KEY: str = ""
     AWS_REGION: str = "ap-northeast-2"

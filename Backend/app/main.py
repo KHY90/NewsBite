@@ -1,5 +1,10 @@
+# 이 파일은 NewsBite FastAPI 애플리케이션의 메인 진입점입니다.
+# 애플리케이션 생성, 미들웨어 설정, API 라우터 포함, 라이프사이클 이벤트 처리,
+# 그리고 기본 엔드포인트(루트, 헬스 체크)를 정의합니다.
+# uvicorn을 사용하여 애플리케이션을 실행하는 역할도 합니다.
+
 """
-NewsBite FastAPI Application
+NewsBite FastAPI 애플리케이션
 """
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,26 +20,26 @@ from app.services.scheduler import start_scheduler, stop_scheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan events"""
+    """애플리케이션 라이프사이클 이벤트"""
     # Startup
-    print("🚀 Starting NewsBite API...")
+    print("🚀 NewsBite API를 시작합니다...")
     await init_db()
-    print("✅ Database initialized")
+    print("✅ 데이터베이스가 초기화되었습니다")
     
     # 스케줄러 시작
     await start_scheduler()
-    print("⏰ News scheduler started")
+    print("⏰ 뉴스 스케줄러가 시작되었습니다")
     
     yield
     
     # Shutdown
-    print("📴 Shutting down NewsBite API...")
+    print("📴 NewsBite API를 종료합니다...")
     await stop_scheduler()
-    print("⏸️ News scheduler stopped")
+    print("⏸️ 뉴스 스케줄러가 중지되었습니다")
 
 
 def create_application() -> FastAPI:
-    """Create and configure FastAPI application"""
+    """FastAPI 애플리케이션 생성 및 구성"""
     app = FastAPI(
         title=settings.PROJECT_NAME,
         description="뉴스한입 - 개인 맞춤형 뉴스 요약 서비스 API",
@@ -62,7 +67,7 @@ def create_application() -> FastAPI:
     async def root():
         """API 상태 확인"""
         return {
-            "message": "NewsBite API is running!",
+            "message": "NewsBite API가 실행 중입니다!",
             "version": "1.0.0",
             "docs_url": "/docs" if settings.DEBUG else None,
         }
@@ -77,7 +82,7 @@ def create_application() -> FastAPI:
         """내부 서버 오류 핸들러"""
         return JSONResponse(
             status_code=500,
-            content={"message": "Internal server error", "detail": str(exc) if settings.DEBUG else None}
+            content={"message": "내부 서버 오류", "detail": str(exc) if settings.DEBUG else None}
         )
 
     return app

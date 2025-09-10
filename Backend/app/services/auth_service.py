@@ -1,5 +1,17 @@
+# 이 파일은 사용자 인증과 관련된 핵심 비즈니스 로직을 처리하는 서비스 계층입니다.
+# API 엔드포인트로부터의 요청을 받아 실제 인증 과정을 수행하고,
+# 데이터베이스와 상호작용하여 사용자 정보를 관리합니다.
+#
+# - `AuthService` 클래스: 인증 관련 로직을 정적 메소드로 그룹화합니다.
+#   - `authenticate_with_google`: Google OAuth 토큰을 받아 Supabase에 인증을 요청하고,
+#                                 성공 시 JWT 토큰과 사용자 정보를 반환합니다.
+#   - `get_or_create_user`: Supabase로부터 받은 사용자 정보를 기반으로 로컬 데이터베이스에
+#                           사용자가 없으면 새로 생성하고, 있으면 정보를 업데이트합니다.
+#   - `validate_token`: 클라이언트로부터 받은 JWT 토큰의 유효성을 검증합니다.
+#   - `update_user_profile`: 사용자의 프로필 정보를 데이터베이스에서 업데이트합니다.
+
 """
-Authentication service layer
+인증 서비스 계층
 """
 from typing import Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession

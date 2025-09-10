@@ -1,5 +1,10 @@
+# 이 파일은 사용자 인증 관련 API 엔드포인트를 정의합니다.
+# Google OAuth를 이용한 로그인, 로그아웃, 현재 사용자 정보 조회,
+# 그리고 JWT 토큰의 유효성 검증 기능을 제공합니다.
+# 각 엔드포인트는 AuthService를 호출하여 비즈니스 로직을 처리합니다.
+
 """
-Authentication endpoints
+인증 엔드포인트
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession

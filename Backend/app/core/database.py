@@ -1,5 +1,11 @@
+# 이 파일은 데이터베이스 연결 및 세션 관리를 담당합니다.
+# SQLAlchemy를 사용하여 비동기 데이터베이스 엔진(async_engine)을 생성하고,
+# FastAPI의 의존성 주입 시스템에서 사용할 세션(async_session)을 설정합니다.
+# 또한, 애플리케이션 시작 시 데이터베이스를 초기화하는 `init_db` 함수와
+# 각 API 요청마다 데이터베이스 세션을 제공하는 `get_db` 함수를 정의합니다.
+
 """
-Database configuration and session management
+데이터베이스 구성 및 세션 관리
 """
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession

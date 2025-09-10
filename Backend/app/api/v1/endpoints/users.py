@@ -1,5 +1,9 @@
+# 이 파일은 사용자 프로필 및 개인 설정과 관련된 API 엔드포인트를 정의합니다.
+# 사용자는 자신의 프로필 정보(이름, 알림 설정 등)를 조회하고 업데이트할 수 있으며,
+# 뉴스 추천에 사용될 관심사(카테고리, 기업)를 조회하고 설정하는 기능을 제공합니다.
+
 """
-Users endpoints
+사용자 엔드포인트
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -1,5 +1,4 @@
 // 인증 관련 타입 정의
-
 export interface User {
   id: string;
   supabase_id: string;

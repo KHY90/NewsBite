@@ -1,5 +1,17 @@
+# 이 파일은 FastAPI 애플리케이션에서 사용되는 공통 의존성(Dependency)들을 정의합니다.
+# 주로 사용자 인증과 관련된 기능을 제공하며, API 엔드포인트에서 사용자의 로그인 상태를
+# 확인하고 현재 사용자 정보를 가져오는 역할을 합니다.
+#
+# - `get_current_user`: HTTP 헤더의 Bearer 토큰을 검증하여 현재 로그인된 사용자 정보를 반환합니다.
+#                       인증이 필요한 모든 엔드포인트에서 사용됩니다.
+# - `get_current_user_optional`: 토큰이 있는 경우에만 사용자 정보를 반환하고, 없어도 오류를
+#                                발생시키지 않아 비로그인 상태에서도 접근 가능한 엔드포인트에 사용됩니다.
+# - `get_current_active_user`: `get_current_user`와 유사하지만, 이메일 인증까지 완료된
+#                              활성 사용자만 허용하는 더 엄격한 인증입니다.
+# - `get_db_session`: 데이터베이스 세션을 생성하고 반환하는 의존성입니다.
+
 """
-FastAPI dependencies for authentication and other common functionality
+인증 및 기타 공통 기능을 위한 FastAPI 의존성
 """
 from typing import Optional
 from fastapi import Depends, HTTPException, status, Header
