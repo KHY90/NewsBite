@@ -22,9 +22,9 @@ from typing import List
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.services.news_crawler import news_crawler, NewsItem
-from app.services.news_service import NewsService
-from app.services.ai_service import ai_service
+from app.services.crawler import run_news_crawling
+from app.services.ai_processor import process_unprocessed_news
+from app.services.content_generator import generate_and_send_daily_emails
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,6 @@ class NewsScheduler:
     
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
-        self.news_service = NewsService()
         self.is_running = False
     
     def start(self):
@@ -95,109 +94,36 @@ class NewsScheduler:
         """뉴스 크롤링 및 AI 처리"""
         try:
             logger.info("=== 뉴스 크롤링 시작 ===")
-            start_time = datetime.now()
             
-            # 1. 뉴스 크롤링
-            categories = ["정치", "경제", "사회", "IT/과학", "세계"]
-            news_items = await news_crawler.crawl_all_categories(categories)
+            # 1. 뉴스 크롤링 및 데이터베이스 저장
+            crawl_result = await run_news_crawling(limit_per_category=15)
             
-            if not news_items:
-                logger.warning("크롤링된 뉴스가 없습니다.")
+            if not crawl_result["success"]:
+                logger.error(f"뉴스 크롤링 실패: {crawl_result.get('error')}")
                 return
             
-            logger.info(f"{len(news_items)}개의 뉴스 기사를 수집했습니다.")
+            logger.info(f"뉴스 크롤링 완료: {crawl_result['saved_count']}개 저장")
             
-            # 2. 중복 제거
-            unique_news = await self._remove_duplicates(news_items)
-            logger.info(f"중복 제거 후 {len(unique_news)}개의 뉴스 기사")
+            # 2. AI 처리 (요약, 감정분석) - 백그라운드에서 진행
+            asyncio.create_task(self._process_ai_analysis())
             
-            # 3. 데이터베이스 저장 (AI 처리 전)
-            saved_count = 0
-            for news_item in unique_news:
-                try:
-                    # 뉴스 기사를 데이터베이스에 저장
-                    await self.news_service.create_news_article(news_item)
-                    saved_count += 1
-                except Exception as e:
-                    logger.error(f"뉴스 저장 오류: {e}")
-                    continue
-            
-            logger.info(f"{saved_count}개의 뉴스 기사가 데이터베이스에 저장되었습니다.")
-            
-            # 4. AI 처리 (요약, 감정분석) - 백그라운드에서 진행
-            asyncio.create_task(self._process_ai_analysis(unique_news))
-            
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds()
-            logger.info(f"=== 뉴스 크롤링 완료 (소요시간: {duration:.1f}초) ===")
+            logger.info(f"=== 뉴스 크롤링 완료 (소요시간: {crawl_result['duration_seconds']:.1f}초) ===")
             
         except Exception as e:
             logger.error(f"뉴스 크롤링 중 오류 발생: {e}")
     
-    async def _remove_duplicates(self, news_items: List[NewsItem]) -> List[NewsItem]:
-        """중복 뉴스 제거"""
-        seen_titles = set()
-        unique_news = []
-        
-        for news_item in news_items:
-            # 제목 기반 중복 체크 (간단한 버전)
-            title_key = news_item.title.lower().strip()
-            if title_key not in seen_titles:
-                seen_titles.add(title_key)
-                unique_news.append(news_item)
-        
-        return unique_news
-    
-    async def _process_ai_analysis(self, news_items: List[NewsItem]):
+    async def _process_ai_analysis(self):
         """AI 분석 처리 (요약, 감정분석)"""
         try:
             logger.info("=== AI 분석 시작 ===")
             
-            processed_count = 0
-            failed_count = 0
+            # 처리되지 않은 뉴스들을 배치로 AI 처리
+            result = await process_unprocessed_news(batch_size=20)
             
-            # 동시 처리 수 제한 (API 레이트 리밋 고려)
-            semaphore = asyncio.Semaphore(2)
-            
-            async def process_single_item(news_item: NewsItem):
-                async with semaphore:
-                    try:
-                        # AI 처리
-                        result = await ai_service.process_news_article(
-                            title=news_item.title,
-                            content=news_item.content,
-                            category=news_item.category
-                        )
-                        
-                        if not result.error:
-                            # 데이터베이스 업데이트 (임시 - 추후 news_service에 메서드 추가)
-                            return {
-                                'title': news_item.title,
-                                'ai_summary': result.ai_summary,
-                                'sentiment_score': result.sentiment_score,
-                                'pros_and_cons': result.pros_and_cons,
-                                'success': True
-                            }
-                        else:
-                            logger.error(f"AI 처리 실패 - {news_item.title}: {result.error}")
-                            return {'title': news_item.title, 'success': False}
-                            
-                    except Exception as e:
-                        logger.error(f"AI 분석 오류 - {news_item.title}: {e}")
-                        return {'title': news_item.title, 'success': False}
-            
-            # 모든 뉴스 아이템을 병렬 처리 (제한된 동시성)
-            tasks = [process_single_item(item) for item in news_items[:20]]  # 최대 20개까지만
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            # 결과 집계
-            for result in results:
-                if isinstance(result, dict) and result.get('success'):
-                    processed_count += 1
-                else:
-                    failed_count += 1
-            
-            logger.info(f"=== AI 분석 완료 (성공: {processed_count}, 실패: {failed_count}) ===")
+            if result["success"]:
+                logger.info(f"=== AI 분석 완료 (처리: {result['processed_count']}개) ===")
+            else:
+                logger.error(f"AI 분석 실패: {result.get('error')}")
             
         except Exception as e:
             logger.error(f"AI 분석 처리 중 오류: {e}")
@@ -207,13 +133,23 @@ class NewsScheduler:
         try:
             logger.info("=== 개인화된 이메일 발송 시작 ===")
             
-            # 사용자별 개인화된 뉴스 이메일 생성 및 발송 (추후 구현)
-            # users = await self.user_service.get_active_users()
-            # for user in users:
-            #     personalized_news = await self.news_service.get_personalized_news(user.id)
-            #     await self.email_service.send_news_email(user.email, personalized_news)
+            # 운영 환경에서는 모든 사용자에게, 개발 환경에서는 테스트 모드로 발송
+            test_mode = settings.ENVIRONMENT == "development"
+            test_limit = 5 if test_mode else None
             
-            logger.info("=== 개인화된 이메일 발송 완료 ===")
+            # 개인화된 뉴스 이메일 생성 및 발송
+            results = await generate_and_send_daily_emails(
+                test_mode=test_mode,
+                test_limit=test_limit
+            )
+            
+            logger.info(f"=== 개인화된 이메일 발송 완료 ===")
+            logger.info(f"콘텐츠 생성: {results['generated']}명")
+            logger.info(f"발송 성공: {results['success']}명")
+            logger.info(f"발송 실패: {results['failed']}명")
+            
+            if test_mode:
+                logger.info("⚠️ 테스트 모드로 실행됨 (최대 5명)")
             
         except Exception as e:
             logger.error(f"이메일 발송 중 오류: {e}")
@@ -223,14 +159,13 @@ class NewsScheduler:
         try:
             logger.info("=== 테스트 크롤링 시작 ===")
             
-            # 테스트용으로 정치 카테고리만 크롤링
-            news_items = await news_crawler.crawl_category("정치")
-            logger.info(f"테스트 크롤링: {len(news_items)}개 기사 수집")
+            # 소규모 테스트 크롤링
+            result = await run_news_crawling(limit_per_category=5)
             
-            # 첫 번째 기사 정보 출력
-            if news_items:
-                first_news = news_items[0]
-                logger.info(f"첫 번째 기사: {first_news.title[:50]}...")
+            if result["success"]:
+                logger.info(f"테스트 크롤링 완료: {result['saved_count']}개 저장")
+            else:
+                logger.error(f"테스트 크롤링 실패: {result.get('error')}")
             
         except Exception as e:
             logger.error(f"테스트 크롤링 오류: {e}")

@@ -1,0 +1,71 @@
+{{ "=" * 50 }}
+🗞️ 뉴스한입 - {{ date }}
+{{ "=" * 50 }}
+
+안녕하세요, {{ user_name }}님!
+
+오늘의 개인 맞춤형 뉴스를 준비했습니다.
+
+📊 오늘의 뉴스 요약
+{{ "-" * 30 }}
+• 총 뉴스: {{ total_news }}개
+• 카테고리: {{ categories_count }}개
+• 관심 기업: {{ companies_count }}개
+• 논쟁 이슈: {{ controversial_count }}개
+
+{% for category_name, news_list in news_by_category.items() %}
+📂 {{ category_name }}
+{{ "-" * 40 }}
+{% for news in news_list[:3] %}
+• {{ news.title }}
+  요약: {{ news.summary }}
+  {% if news.sentiment_label %}감정: {{ news.sentiment_label }} | {% endif %}출처: {{ news.source_name }} | {{ news.published_at }}
+  링크: {{ news.source_url }}
+
+{% endfor %}
+{% endfor %}
+
+{% if news_by_company %}
+{% for company_name, news_list in news_by_company.items() %}
+🏢 {{ company_name }}
+{{ "-" * 40 }}
+{% for news in news_list[:2] %}
+• {{ news.title }}
+  요약: {{ news.summary }}
+  {% if news.sentiment_label %}감정: {{ news.sentiment_label }} | {% endif %}출처: {{ news.source_name }} | {{ news.published_at }}
+  링크: {{ news.source_url }}
+
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if controversial_news %}
+🔥 오늘의 논쟁 이슈
+{{ "-" * 40 }}
+{% for news in controversial_news %}
+• {{ news.title }}
+  요약: {{ news.summary }}
+  {% if news.pros_summary and news.cons_summary %}
+  
+  👍 찬성 의견: {{ news.pros_summary }}
+  👎 반대 의견: {{ news.cons_summary }}
+  {% endif %}
+  출처: {{ news.source_name }} | {{ news.published_at }}
+  링크: {{ news.source_url }}
+
+{% endfor %}
+{% endif %}
+
+{{ "=" * 50 }}
+🔗 유용한 링크
+{{ "=" * 50 }}
+• 뉴스한입 웹사이트: {{ webapp_url }}
+• 관심사 설정: {{ preferences_url }}
+• 건의사항: {{ feedback_url }}
+• 구독 해지: {{ unsubscribe_url }}
+
+{{ "-" * 50 }}
+© 2024 뉴스한입. 모든 권리 보유.
+
+이 이메일이 더 이상 필요하지 않으시면 위의 구독 해지 링크를 클릭하세요.
+{{ "=" * 50 }}

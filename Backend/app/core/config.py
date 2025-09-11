@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
     SUPABASE_SERVICE_KEY: str = ""
+    SUPABASE_JWT_SECRET: str = ""
     
     # AI API
     OPENAI_API_KEY: str = ""
@@ -75,6 +76,9 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USERNAME: str = ""
     SMTP_PASSWORD: str = ""
+    FROM_EMAIL: str = ""
+    FROM_NAME: str = "뉴스한입"
+    WEBAPP_URL: str = "https://newsbite.kr"
     
     # 뉴스 설정
     NEWS_CRAWL_START_TIME: str = "18:00"

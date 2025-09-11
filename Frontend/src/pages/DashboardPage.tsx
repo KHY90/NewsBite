@@ -1,14 +1,67 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Navigation from '../components/Navigation';
 
 const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading, signOut } = useAuth();
+
+  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+  if (!user && !loading) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('로그아웃 실패:', error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      {/* 헤더 */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-gray-800">
+                뉴스한입 📰
+              </h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {user?.user_metadata?.avatar_url && (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt="프로필"
+                    className="w-8 h-8 rounded-full"
+                  />
+                )}
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.user_metadata?.name || user?.email}
+                </span>
+              </div>
+              
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
       <div className="py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
