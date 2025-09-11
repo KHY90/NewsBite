@@ -90,7 +90,7 @@ docker-compose up -d
 # Backend (Terminal 1)
 cd Backend
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8000
 
 # Frontend (Terminal 2)
 cd Frontend  
