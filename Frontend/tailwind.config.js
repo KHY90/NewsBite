@@ -1,3 +1,5 @@
+const { colors } = require('tailwindcss/defaultTheme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -6,33 +8,52 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+        brand: {
+          primary: '#0E5AE5',
+          primaryHover: '#0B4BC2',
+          primarySoft: '#E8F0FF',
         },
-        secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+        line: {
+          soft: '#E5E7EB',
+          strong: '#D1D5DB',
+        },
+        // ui.json의 text 및 bg 색상을 Tailwind 기본 색상으로 확장
+        gray: {
+          ...colors.gray,
+          50: '#F7F9FC', // bg.subtle
+          600: '#6B7280', // text.muted
+          800: '#1F2937', // text.base
+          900: '#0B1220', // text.strong
         }
       },
       fontFamily: {
-        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+        sans: [
+          'Pretendard', 'Inter', 'Noto Sans KR', 'system-ui', '-apple-system', 
+          'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'
+        ],
+      },
+      fontSize: {
+        'display': '48px',
+        'h1': '40px',
+        'h2': '32px',
+        'h3': '24px',
+        'body': '16px',
+        'caption': '14px',
+        'label': '12px',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'md': '10px',
+        'lg': '14px',
+        'xl': '20px',
+      },
+      boxShadow: {
+        'sm': '0 1px 2px rgba(0,0,0,0.06)',
+        'md': '0 6px 16px rgba(0,0,0,0.08)',
+        'lg': '0 12px 32px rgba(0,0,0,0.12)',
+      },
+      maxWidth: {
+        'container': '1200px',
       }
     },
   },

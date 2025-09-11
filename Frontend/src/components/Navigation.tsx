@@ -1,48 +1,49 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navigation: React.FC = () => {
   const { user, signOut } = useAuth();
 
-  if (!user) return null;
-
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/dashboard" className="text-xl font-bold text-gray-900">
-              뉴스한입 📰
-            </Link>
-            <div className="ml-10 flex space-x-8">
-              <Link
-                to="/dashboard"
-                className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                대시보드
-              </Link>
-              <Link
-                to="/preferences"
-                className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                관심사 설정
-              </Link>
-            </div>
-          </div>
+    <header className="sticky top-0 z-50 w-full bg-white/80 border-b border-line-soft backdrop-blur-sm">
+      <div className="container h-16 flex items-center justify-between">
+        <Link to="/" className="text-h3 font-bold text-gray-900">
+          NewsBite
+        </Link>
 
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-700">{user.email}</span>
-            <button
-              onClick={signOut}
-              className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              로그아웃
-            </button>
-          </div>
+        <nav className="hidden md:flex items-center gap-6">
+          <NavLink to="/dashboard" className={({ isActive }) => 
+            `text-body font-medium ${isActive ? 'text-brand-primary' : 'text-gray-800 hover:text-brand-primary'}`
+          }>
+            대시보드
+          </NavLink>
+          <NavLink to="/preferences" className={({ isActive }) => 
+            `text-body font-medium ${isActive ? 'text-brand-primary' : 'text-gray-800 hover:text-brand-primary'}`
+          }>
+            관심사 설정
+          </NavLink>
+        </nav>
+
+        <div>
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="hidden sm:inline text-caption text-gray-600">{user.email}</span>
+              <button
+                onClick={signOut}
+                className="btn btn-secondary btn-sm"
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className="btn btn-primary btn-md">
+              시작하기
+            </Link>
+          )})
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 
