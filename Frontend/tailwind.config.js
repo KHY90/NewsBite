@@ -1,11 +1,11 @@
-const { colors } = require('tailwindcss/defaultTheme');
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  darkMode: "class",
+  content: {
+    files: [
+      "./src/**/*.{js,jsx,ts,tsx}",
+    ],
+  },
   theme: {
     extend: {
       colors: {
@@ -54,7 +54,6 @@ module.exports = {
         },
         // Enhanced gray scale
         gray: {
-          ...colors.gray,
           50: '#F7F9FC',
           600: '#6B7280',
           800: '#1F2937',
@@ -123,8 +122,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
     require("tailwindcss-animate"),
   ],
 }
