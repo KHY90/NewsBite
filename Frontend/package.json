@@ -27,7 +27,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.25",
     "tailwindcss": "^4.1.13",
-    "vite": "^8.0.16"
+    "vite": "^8.3.5"
   },
   "scripts": {
     "start": "vite --host 0.0.0.0 --port 3000",
